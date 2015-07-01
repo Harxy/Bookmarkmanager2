@@ -15,8 +15,20 @@ class AppWeb < Sinatra::Base
   end
 
   post '/links' do
-    Link.create(url: params[:url], title: params[:title])
-    redirect('/links')
+    link = Link.new(url: params[:url], title: params[:title])
+    tags = params[:tags].split
+    tags.each do |tag|
+      link.tags << Tag.create(name: tag)
+    end
+    link.save
+    redirect to('/links')
+  end
+
+  get '/tags/:name' do
+    tag = Tag.first(name: params[:name])
+    @links = tag ? tag.links : []
+    erb :'links/index'
+
   end
 
 
@@ -24,6 +36,8 @@ class AppWeb < Sinatra::Base
     @links = Link.all
     erb :'links/index'
   end
+
+
 
 
 end
